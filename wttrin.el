@@ -39,13 +39,24 @@
     (add-to-list 'url-request-extra-headers wttrin-default-accept-language)
     (with-current-buffer
         (url-retrieve-synchronously
-         (concat "http://wttr.in/" query)
+         (concat "http://wttr.in/" query "?A")
          (lambda (status) (switch-to-buffer (current-buffer))))
       (decode-coding-string (buffer-string) 'utf-8))))
 
 (defun wttrin-exit ()
   (interactive)
   (quit-window t))
+
+(define-derived-mode wttrin-mode fundamental-mode "wttrin"
+  :group 'wttrin)
+
+(defvar wttrin-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "Q" #'wttrin-exit)
+    (define-key map [remap revert-buffer] #'wttrin)
+    (define-key map "g" #'wittrin)
+    map)
+  "Keymap for wttrin.")
 
 (defun wttrin-query (city-name)
   "Query weather of CITY-NAME via wttrin, and display the result in new buffer."
@@ -63,7 +74,7 @@
         (use-local-map (make-sparse-keymap))
         (local-set-key "q" 'wttrin-exit)
         (local-set-key "g" 'wttrin)
-        (setq buffer-read-only t)))))
+        (wttrin-mode)))))
 
 ;;;###autoload
 (defun wttrin (city)
